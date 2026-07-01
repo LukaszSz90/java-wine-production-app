@@ -1,13 +1,11 @@
 package app.wine_production.entity;
 
 
+import app.wine_production.entity.enums.Role;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import lombok.*;
-import org.springframework.security.core.userdetails.UserDetails;
-
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -24,20 +22,26 @@ public class User {
 
     @Column(nullable = false, unique = true)
     private String username;
+
+    @Column(nullable = false)
     private String password;
 
-    private Boolean isUserActive = Boolean.FALSE;
+    @Email
+    @Column(nullable = false, unique = true)
+    private String email;
+
+    @Column(nullable = false)
+    private boolean active = false;
 
     @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(
+            name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id")
+    )
+    @Enumerated(EnumType.STRING)
     @Column(name = "role")
-    private Set<String> roles =  new HashSet<>();
+    private Set<Role> roles =  new HashSet<>();
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
-    private UserDetails userDetails;
-
-    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Wine> wines = new ArrayList<>();
-
-
-
+    private UserProfile userProfile;
 }
